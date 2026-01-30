@@ -1,0 +1,26 @@
+ros_env.sh
+.env
+
+# ROS build artifacts
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
