@@ -1,6 +1,5 @@
 ros_env.sh
 .env
-.docker/
 pyinstall.sh
 
 
