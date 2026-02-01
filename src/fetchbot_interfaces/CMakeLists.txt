@@ -17,12 +17,13 @@ find_package(rosidl_default_generators REQUIRED)
 # Generate interfaces
 ##### COMMENT OUT THE FOLLOWING AFTER ADDING CUSTOM INTERFACE =============================
 
-# rosidl_generate_interfaces(fetchbot
-#   # Add your custom interfaces here
-#   # Example:
-#   # "msg/MyMessage.msg"
-#   # "srv/MyService.srv"
-# )
+rosidl_generate_interfaces(${PROJECT_NAME}
+"msg/Detection.msg"
+  # Add your custom interfaces here
+  # Example:
+  # "msg/MyMessage.msg"
+  # "srv/MyService.srv"
+)
 
 ament_export_dependencies(rosidl_default_runtime)
 

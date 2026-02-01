@@ -4,7 +4,7 @@ import requests
 import json
 
 # Read image and encode to base64
-with open('.docker/red_cup.jpg', 'rb') as f:
+with open('.docker/blue_book.jpg', 'rb') as f:
     image_data = base64.b64encode(f.read()).decode('utf-8')
 
 # Send POST request
