@@ -3,7 +3,7 @@ import rclpy
 from rclpy.node import Node
 from fetchbot_interfaces.action import SearchObject
 from rclpy.action import ActionClient
-from rclpy.action.client import ClientGoalHandle
+from rclpy.action.client import ClientGoalHandle, GoalStatus
  
  
 class ObjectSearchClientNode(Node): 
@@ -25,20 +25,42 @@ class ObjectSearchClientNode(Node):
         goal.target_object = self.target_object
 
         #send the goal
-        self.object_search_client.send_goal_async(goal).add_done_callback(self.goal_response_callback)
-        pass
+        self.object_search_client.send_goal_async(goal,self.feedback_callback).add_done_callback(self.goal_response_callback)
+        
+        #testing cancel goal
+        #self.test_timer = self.create_timer(5.0, self.cancel_goal)
+
 
     def goal_response_callback(self,future):
         # If goal is accepted, request the result
         self.goal_handle_:ClientGoalHandle = future.result()
         if self.goal_handle_.accepted:
+            self.get_logger().info(f"Goal got accepted")
             self.goal_handle_.get_result_async().add_done_callback(self.goal_result_callback)
+        else:
+            self.get_logger().warn(f"Goal got rejected")
 
     def goal_result_callback(self,future):
         result = future.result().result
+        status = future.result().status
+        if status == GoalStatus.STATUS_SUCCEEDED:
+            self.get_logger().info(f"Success!")
+        elif status == GoalStatus.STATUS_ABORTED:
+            self.get_logger().error(f"Aborted")
+        elif status == GoalStatus.STATUS_CANCELED: 
+            self.get_logger().warn(f"Canceled")
         self.get_logger().info(f"Result: {str(result)}")
     
+    def feedback_callback(self, feedback_msg):
+        elapsed_time = feedback_msg.feedback.elapsed_time
+        current_vel = feedback_msg.feedback.current_velocity
+        self.get_logger().info(f"Current cmd vel rot: {current_vel.twist.angular.z}")
         pass
+
+    def cancel_goal(self):
+        self.get_logger().warn("Sending cancel request")
+        self.goal_handle_.cancel_goal_async()
+        #self.test_timer.cancel() #for testing
 
  
  

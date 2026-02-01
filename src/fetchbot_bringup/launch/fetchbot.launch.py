@@ -1,5 +1,5 @@
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import IncludeLaunchDescription, ExecuteProcess
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from ament_index_python.packages import get_package_share_directory
 from launch_ros.actions import Node
@@ -31,9 +31,6 @@ def generate_launch_description():
 
 
 
-    
-
-
     gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(tb3_gazebo_pkg, 'launch', 'my_turtlebot3_house.launch.py')
@@ -43,21 +40,7 @@ def generate_launch_description():
         }.items()
     )
 
-    # nav2 = IncludeLaunchDescription(
-    #     PythonLaunchDescriptionSource(
-    #         os.path.join(
-    #             nav2_bringup_pkg,
-    #             'launch',
-    #             'bringup_launch.py'
-    #         )
-    #     ),
-    #     launch_arguments={
-    #         'use_sim_time': 'true',
-    #         'autostart': 'true',
-    #         'map': map_path,
-    #         'params_file': nav2_params
-    #     }.items()
-    # )
+
 
     nav2 = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
