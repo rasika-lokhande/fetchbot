@@ -20,10 +20,9 @@ def generate_launch_description():
     map_path = os.path.join(get_package_share_directory('fetchbot_bringup'),
                              'maps', 
                              'my_house.yaml')
-    world_path = os.path.join(get_package_share_directory('fetchbot_bringup'),
-                                'worlds',
-                                'test_world.sdf'
-                            )
+    # world_path = os.path.join(get_package_share_directory('fetchbot_bringup'),
+    #                             'worlds',
+    #                             'test_world.sdf')
     nav2_params = os.path.join(
     get_package_share_directory('fetchbot_bringup'),
     'config',
@@ -37,11 +36,10 @@ def generate_launch_description():
 
     gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(tb3_gazebo_pkg, 'launch', 'turtlebot3_house.launch.py')
+            os.path.join(tb3_gazebo_pkg, 'launch', 'my_turtlebot3_house.launch.py')
         ),
         launch_arguments={
-            'use_sim_time': 'true',
-            #'world': world_path,
+            'use_sim_time': 'true'
         }.items()
     )
 

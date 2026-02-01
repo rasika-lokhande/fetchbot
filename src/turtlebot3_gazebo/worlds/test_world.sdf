@@ -7,7 +7,7 @@
     </scene>
     <gui fullscreen='false'>
       <camera name='user_camera'>
-        <pose>0.31965399999999999 -0.23500199999999999 9.2944099999999992 1.522609579747792e-17 1.5138000000000049 0.0095990000000000172</pose>
+        <pose>0.31965399999999999 -0.23500199999999999 9.2944099999999992 3.0452191594958514e-17 1.5138000000000067 0.0095990000000000207</pose>
         <view_controller>orbit</view_controller>
         <projection_type>perspective</projection_type>
       </camera>
@@ -2829,7 +2829,7 @@
           </collision>
         </link>
         <link name='Wall_92'>
-          <pose>3.5999400000000001 -0.17494000000000001 0 0 0 -4.599999999999998e-05</pose>
+          <pose>3.5999400000000001 -0.17494000000000001 0 0 0 -4.5999999999999973e-05</pose>
           <self_collide>false</self_collide>
           <kinematic>false</kinematic>
           <visual name='Wall_92_Visual'>
@@ -6124,7 +6124,195 @@
         <static>true</static>
         <allow_auto_disable>true</allow_auto_disable>
       </model>
-      <pose>-2.6229000000000001e-15 4.4408900000000002e-16 0 0 0 -7.7715600000000002e-16</pose>
+      <pose>-4.6143644460983069e-15 8.8817841970012523e-16 0 0 0 -1.4432899320127035e-15</pose>
+      <self_collide>false</self_collide>
+    </model>
+    <model name='red_cup'>
+      <pose>-1.5 -1.6438214778900146 0.059999998658895493 0 0 0</pose>
+      <static>true</static>
+      <link name='link'>
+        <visual name='visual'>
+          <geometry>
+            <cylinder>
+              <radius>0.040000000000000001</radius>
+              <length>0.12</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.800000012 0.100000001 0.100000001 1</ambient>
+            <diffuse>0.800000012 0.100000001 0.100000001 1</diffuse>
+          </material>
+        </visual>
+        <collision name='collision'>
+          <geometry>
+            <cylinder>
+              <radius>0.040000000000000001</radius>
+              <length>0.12</length>
+            </cylinder>
+          </geometry>
+          <surface>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+            <contact/>
+          </surface>
+        </collision>
+        <pose>0 0 0 0 0 0</pose>
+        <inertial>
+          <pose>0 0 0 0 0 0</pose>
+          <mass>1</mass>
+          <inertia>
+            <ixx>1</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>1</iyy>
+            <iyz>0</iyz>
+            <izz>1</izz>
+          </inertia>
+        </inertial>
+        <enable_wind>false</enable_wind>
+      </link>
+      <self_collide>false</self_collide>
+    </model>
+    <model name='blue_book'>
+      <pose>-2 -1 0.014999999999999999 0 0 0</pose>
+      <static>true</static>
+      <link name='link'>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>0.14999999999999999 0.20000000000000001 0.029999999999999999</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.100000001 0.100000001 0.800000012 1</ambient>
+            <diffuse>0.100000001 0.100000001 0.800000012 1</diffuse>
+          </material>
+        </visual>
+        <collision name='collision'>
+          <geometry>
+            <box>
+              <size>0.14999999999999999 0.20000000000000001 0.029999999999999999</size>
+            </box>
+          </geometry>
+          <surface>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+            <contact/>
+          </surface>
+        </collision>
+        <pose>0 0 0 0 0 0</pose>
+        <inertial>
+          <pose>0 0 0 0 0 0</pose>
+          <mass>1</mass>
+          <inertia>
+            <ixx>1</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>1</iyy>
+            <iyz>0</iyz>
+            <izz>1</izz>
+          </inertia>
+        </inertial>
+        <enable_wind>false</enable_wind>
+      </link>
+      <self_collide>false</self_collide>
+    </model>
+    <model name='yellow_ball'>
+      <pose>-2.5 -0.5 0.10000000000000001 0 0 0</pose>
+      <static>true</static>
+      <link name='link'>
+        <visual name='visual'>
+          <geometry>
+            <sphere>
+              <radius>0.10000000000000001</radius>
+            </sphere>
+          </geometry>
+          <material>
+            <ambient>0.899999976 0.899999976 0.100000001 1</ambient>
+            <diffuse>0.899999976 0.899999976 0.100000001 1</diffuse>
+          </material>
+        </visual>
+        <collision name='collision'>
+          <geometry>
+            <sphere>
+              <radius>0.10000000000000001</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+            <contact/>
+          </surface>
+        </collision>
+        <pose>0 0 0 0 0 0</pose>
+        <inertial>
+          <pose>0 0 0 0 0 0</pose>
+          <mass>1</mass>
+          <inertia>
+            <ixx>1</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>1</iyy>
+            <iyz>0</iyz>
+            <izz>1</izz>
+          </inertia>
+        </inertial>
+        <enable_wind>false</enable_wind>
+      </link>
+      <self_collide>false</self_collide>
+    </model>
+    <model name='green_bottle'>
+      <pose>-0.40662199258804321 -0.65009671449661255 0.10000000149011612 0 0 0</pose>
+      <static>true</static>
+      <link name='link'>
+        <visual name='visual'>
+          <geometry>
+            <cylinder>
+              <radius>0.029999999999999999</radius>
+              <length>0.20000000000000001</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.100000001 0.699999988 0.100000001 1</ambient>
+            <diffuse>0.100000001 0.699999988 0.100000001 1</diffuse>
+          </material>
+        </visual>
+        <collision name='collision'>
+          <geometry>
+            <cylinder>
+              <radius>0.029999999999999999</radius>
+              <length>0.20000000000000001</length>
+            </cylinder>
+          </geometry>
+          <surface>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+            <contact/>
+          </surface>
+        </collision>
+        <pose>0 0 0 0 0 0</pose>
+        <inertial>
+          <pose>0 0 0 0 0 0</pose>
+          <mass>1</mass>
+          <inertia>
+            <ixx>1</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>1</iyy>
+            <iyz>0</iyz>
+            <izz>1</izz>
+          </inertia>
+        </inertial>
+        <enable_wind>false</enable_wind>
+      </link>
       <self_collide>false</self_collide>
     </model>
     <light name='sun' type='directional'>
