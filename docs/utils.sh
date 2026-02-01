@@ -23,3 +23,39 @@ docker build -t fetchbot-vision:latest .
 
 # 3. Run new container
 docker run -d -p 5000:5000 --name vision-service fetchbot-vision:latest
+
+
+
+
+# MODEL PERSISTS
+docker run \
+  -p 5000:5000 \
+  -v /home/rasika-lokhande/.cache/clip:/root/.cache/clip \
+  fetchbot-vision:latest
+
+
+# Reset
+pkill -f gz
+pkill -f ros2
+rm -rf ~/.gazebo
+
+
+#Test
+
+ros2 topic pub -r 5 /detected_objects fetchbot_interfaces/msg/Detection "{
+  object_names: ['blue book', 'green bottle', 'red cup', 'yellow ball'],
+  confidences:  [0.42, 0.55, 0.91, 0.30],
+  best_match: 'red cup',
+  best_confidence: 0.91
+}"
+
+
+ros2 topic pub -r 5 /detected_objects fetchbot_interfaces/msg/Detection "{
+  object_names: ['blue book', 'green bottle', 'red cup', 'yellow ball'],
+  confidences:  [0.42, 0.55, 0.91, 0.30],
+  best_match: 'blue book',
+  best_confidence: 0.91
+}"
+
+
+ros2 run fetchbot_perception object_search_client --ros-args -p target_object:="red cup"

@@ -24,7 +24,10 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'vision_bridge=fetchbot_perception.vision_bridge:main'
+            'vision_bridge=fetchbot_perception.vision_bridge:main',
+            'object_search = fetchbot_perception.object_search:main',
+            'object_search_client = fetchbot_perception.object_search_client:main',
+
         ],
     },
 )

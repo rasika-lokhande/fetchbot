@@ -13,12 +13,16 @@ endif()
 # Find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
 # Generate interfaces
 ##### COMMENT OUT THE FOLLOWING AFTER ADDING CUSTOM INTERFACE =============================
 
 rosidl_generate_interfaces(${PROJECT_NAME}
 "msg/Detection.msg"
+"srv/SearchObject.srv"
+"action/SearchObject.action"
+DEPENDENCIES geometry_msgs
   # Add your custom interfaces here
   # Example:
   # "msg/MyMessage.msg"
