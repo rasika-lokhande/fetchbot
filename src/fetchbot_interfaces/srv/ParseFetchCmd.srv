@@ -1,0 +1,7 @@
+# Request
+string user_command    # User's command in natural language
+---
+# Response
+string target_object # Object to fetch
+string source      # Location of the object
+string destination # Destination to take the object

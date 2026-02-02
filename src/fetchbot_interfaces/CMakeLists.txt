@@ -21,6 +21,7 @@ find_package(geometry_msgs REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
 "msg/Detection.msg"
 "srv/SearchObject.srv"
+"srv/ParseFetchCmd.srv"
 "action/SearchObject.action"
 DEPENDENCIES geometry_msgs
   # Add your custom interfaces here
