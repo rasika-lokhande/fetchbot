@@ -68,7 +68,6 @@ class ParseCommand(py_trees.behaviour.Behaviour):
 
     def callback_cmd_parse_request(self,future,request):
         self.response = self.future.result()
-        self.blackboard.set("location", self.response.source)
         self.blackboard.set("target_object", self.response.target_object)
         self.node.get_logger().info(f"Response- {self.response}")
 

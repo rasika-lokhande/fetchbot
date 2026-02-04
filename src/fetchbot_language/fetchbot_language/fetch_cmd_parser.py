@@ -28,8 +28,8 @@ class FetchCmdParserNode(Node):
         llm_api_response = self.call_llm_api(user_command)
 
         response.target_object = llm_api_response.target_object
-        response.source = llm_api_response.source
-        response.destination = llm_api_response.destination
+        # response.source = llm_api_response.source
+        # response.destination = llm_api_response.destination
         
         return response
     
@@ -43,8 +43,8 @@ class FetchCmdParserNode(Node):
 
         class SearchCommand(BaseModel):
             target_object: str
-            source: str
-            destination: str
+            # source: str
+            # destination: str
 
         response = self.openai_client.responses.parse(
             model= self.model_name,
@@ -65,7 +65,7 @@ class FetchCmdParserNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = FetchCmdParserNode() 
-    #print(node.call_llm_api("Bring me red cup"))
+    print(node.call_llm_api("Im thirsty."))
     rclpy.spin(node)
     rclpy.shutdown()
  
