@@ -5,10 +5,14 @@ from ament_index_python.packages import get_package_share_directory
 from launch_ros.actions import Node
 import os
 
+
+
+
 def generate_launch_description():
 
     tb3_gazebo_pkg = get_package_share_directory('turtlebot3_gazebo')
     nav2_bringup_pkg = get_package_share_directory('turtlebot3_navigation2')
+ 
 
     # nav2_bringup_pkg = get_package_share_directory('nav2_bringup')
 
@@ -36,7 +40,9 @@ def generate_launch_description():
             os.path.join(tb3_gazebo_pkg, 'launch', 'my_turtlebot3_house.launch.py')
         ),
         launch_arguments={
-            'use_sim_time': 'true'
+            'use_sim_time': 'true',
+            # 'x_pose': '0.0',
+            # 'y_pose': '0.0' #Dont use this!
         }.items()
     )
 
@@ -57,6 +63,10 @@ def generate_launch_description():
             #'params_file': nav2_params
         }.items()
     )
+
+  
+
+
 
     
 
