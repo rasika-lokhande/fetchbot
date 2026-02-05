@@ -6334,5 +6334,9 @@
         <falloff>0</falloff>
       </spot>
     </light>
+    <plugin
+    filename="gz-sim-user-commands-system"
+    name="gz::sim::systems::UserCommands">
+  </plugin>
   </world>
 </sdf>

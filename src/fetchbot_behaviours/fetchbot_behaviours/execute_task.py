@@ -16,6 +16,7 @@ class BehaviorTreeNode(Node):
 
         self.blackboard = py_trees.blackboard.Client(name="Client")
         self.blackboard.register_key("user_command", access=py_trees.common.Access.WRITE)
+        self.blackboard.register_key("is_search_plan_generated", access=py_trees.common.Access.WRITE)
         
 
         # Timer to tick tree
@@ -31,6 +32,7 @@ class BehaviorTreeNode(Node):
         self.executing = True
         self.get_logger().info("Starting task execution...")
         self.blackboard.set("user_command", user_command)
+        self.blackboard.set("is_search_plan_generated", False)
         
         
     def tick_tree(self):

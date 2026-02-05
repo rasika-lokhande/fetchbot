@@ -13,8 +13,8 @@ class ParseCommand(py_trees.behaviour.Behaviour):
         self.node = node
         self.blackboard = self.attach_blackboard_client()
         self.blackboard.register_key("user_command", access=py_trees.common.Access.READ)
-        self.blackboard.register_key("location", access=py_trees.common.Access.WRITE)
         self.blackboard.register_key("target_object", access=py_trees.common.Access.WRITE)
+        self.blackboard.register_key("object_available", access=py_trees.common.Access.WRITE)
      
     def setup(self, **kwargs ):
         self.client = self.node.create_client(ParseFetchCmd, '/parse_fetch_cmd')
@@ -44,7 +44,8 @@ class ParseCommand(py_trees.behaviour.Behaviour):
             return py_trees.common.Status.RUNNING
         
         # Process response
-        if self.response:
+        if self.response and self.response.target_object != 'unknown':
+            self.blackboard.set("object_available", True)
             return py_trees.common.Status.SUCCESS
         else:
             self.node.get_logger().error("Command parsing failed")

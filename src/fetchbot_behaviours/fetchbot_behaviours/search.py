@@ -10,11 +10,13 @@ from rclpy.task import Future
 
 class Search(py_trees.behaviour.Behaviour):
 
-    def __init__(self, name, node:Node, target_object:str):
+    def __init__(self, name, node:Node):
         super(Search, self).__init__(name)
         self.node = node
         self.blackboard = self.attach_blackboard_client()
-        self.target_object = target_object
+        self.blackboard.register_key("target_object", access=py_trees.common.Access.READ)
+        self.blackboard.register_key("object_found", access=py_trees.common.Access.WRITE)
+        
       
     def setup(self, **kwargs ):
         self._action_client = ActionClient(
@@ -27,6 +29,7 @@ class Search(py_trees.behaviour.Behaviour):
         self.node.get_logger().info("Action server available!")
        
     def initialise(self):
+        self.target_object = None
         self.request_sent:bool = False
         self.is_goal_accepted = False
         self.goal_handle_ = None
@@ -42,6 +45,7 @@ class Search(py_trees.behaviour.Behaviour):
         """
         # Step 1: Send search goal on first tick
         if not self.request_sent:
+            self.target_object = self.blackboard.get("target_object")
             self.send_search_goal()
             self.request_sent = True
             self.node.get_logger().info("Sending search goal..")
@@ -64,6 +68,7 @@ class Search(py_trees.behaviour.Behaviour):
         if self.action_status == GoalStatus.STATUS_SUCCEEDED:
             if self.result.success == True:
                 self.node.get_logger().info(f"Found Object!")
+                self.blackboard.set("object_found", True)
                 return py_trees.common.Status.SUCCESS
             else:
                 self.node.get_logger().info(f"Did not find Object!")

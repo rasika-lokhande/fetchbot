@@ -12,11 +12,11 @@ from rclpy.task import Future
 
 class NavLocation(py_trees.behaviour.Behaviour):
 
-    def __init__(self, name, node:rclpy.node.Node, nav_goal:NavGoal):
+    def __init__(self, name, node:rclpy.node.Node):
         super(NavLocation, self).__init__(name)
         self.node = node
         self.blackboard = self.attach_blackboard_client()
-        self.nav_goal =  nav_goal
+        # self.nav_goal =  nav_goal
       
     def setup(self, **kwargs ):
         self._action_client = ActionClient(
@@ -27,8 +27,10 @@ class NavLocation(py_trees.behaviour.Behaviour):
         self.node.get_logger().info("Waiting for navigate_to_pose action server...")
         self._action_client.wait_for_server()
         self.node.get_logger().info("Action server available!")
+        self.blackboard.register_key("current_nav_goal", access=py_trees.common.Access.READ)
        
     def initialise(self):
+        self.nav_goal = None
         self.goal_pose:PoseStamped = None
         self.request_sent:bool = False
         self.goal_handle_ = None
@@ -63,6 +65,7 @@ class NavLocation(py_trees.behaviour.Behaviour):
 
     def _send_initial_goal(self):
         """Send the navigation goal to the action server."""
+        self.nav_goal = self.blackboard.get("current_nav_goal")
         self.send_nav_request()
         self.request_sent = True
         self.node.get_logger().info(
