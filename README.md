@@ -7,7 +7,7 @@ FetchBot is a ROS2-based robotics framework that enables a robot to locate objec
 
 FetchBot brings a "common sense" approach to robotics. If you tell the robot "I'm thirsty," it:
 
-1. **Reasons** that "thirsty" implies a need for a "green bottle" or "red cup" using an LLM.
+1. **Reasons** that "thirsty" implies a need for a "green bottle" using an LLM.
 2. **Plans** a path prioritized by probability (e.g., checking the kitchen at 60% probability before the office at 5%).
 3. **Recognizes** the object in real-time using a Dockerized CLIP inference server.
 4. **Recovers** autonomously if the object is not found at the primary location by updating its goal to the next most likely room.
@@ -15,6 +15,7 @@ FetchBot brings a "common sense" approach to robotics. If you tell the robot "I'
 ---
 
 ## 🏗 System Architecture
+
 
 ### 🧠 Decision Making (Behavior Trees)
 
@@ -115,15 +116,16 @@ graph TD
 ### 1. Prerequisites
 
 * ROS2 Jazzy
-* Docker & NVIDIA Container Toolkit
+* Docker
 * OpenAI API Key (Exported as `OPENAI_API_KEY`)
+* Gazebo Sim (v8.10.0)
 
 ### 2. Vision Setup (Docker)
 
 Build and run the CLIP inference server:
 
 ```bash
-docker build -t fetchbot-vision .
+docker build -f .docker/Dockerfile -t fetchbot-vision .
 docker run --rm -p 5000:5000 fetchbot-vision
 
 ```
@@ -131,11 +133,11 @@ docker run --rm -p 5000:5000 fetchbot-vision
 ### 3. Launching the System
 
 ```bash
+cd fetchbot
 ros2 launch fetchbot_bringup findbot_launch.py
 
 ```
 
-*Note: The Episode Manager waits 15 seconds to ensure Gazebo is fully ready before moving objects.*
 
 ---
 
@@ -150,4 +152,9 @@ ros2 launch fetchbot_bringup findbot_launch.py
 ### Next Steps
 
 * [ ] **Grasp:** Integrate MoveIt2 for robotic arm manipulation.
+
+## 🚧 Known Limitations
+
+- Currently limited to pre-mapped environments and objects.
+- CLIP confidence threshold may need tuning for cluttered scenes
 
