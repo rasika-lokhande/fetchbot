@@ -30,7 +30,7 @@ class LocationInfo:
             }
         }
 
-        self.search_locations = {
+        self.search_locations = { #coordinates to navigate to for searching
             'kitchen': [(3.0, 4.5) , (3.0 ,2.0 )],
             'living_room': [(8.0,1.0), (5.0,2.0) , (5.0,5.0), (8.0,5.0)],
             'bedroom': [(-4.0,-2.0) , (-4.0, 0)],

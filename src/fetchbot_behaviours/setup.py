@@ -24,7 +24,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'execute_task=fetchbot_behaviours.execute_task:main'
+            'execute_task=fetchbot_behaviours.execute_task:main',
+            'episode_manager=fetchbot_behaviours.episode_manager:main'
         ],
     },
 )

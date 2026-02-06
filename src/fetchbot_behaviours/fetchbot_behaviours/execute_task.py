@@ -5,6 +5,7 @@ import py_trees
 from fetchbot_behaviours.behaviour_tree import create_behavior_tree
 import py_trees.display as display
 from rclpy.executors import MultiThreadedExecutor
+from std_msgs.msg import String
 
 class BehaviorTreeNode(Node):
     def __init__(self):
@@ -24,6 +25,15 @@ class BehaviorTreeNode(Node):
         self.tick_count = 0
         self.executing = False
         self.get_logger().info("Behavior tree node ready")
+        self.subscription = self.create_subscription(
+            String,
+            '/user_input',
+            self.command_callback,
+            10)
+
+    def command_callback(self, msg):
+        self.get_logger().info(f"Received Command: {msg.data}")
+        self.execute_task(msg.data)
 
     def execute_task(self, user_command:str):   
         # Reset and start tree execution
@@ -72,8 +82,7 @@ def main(args=None):
     rclpy.init(args=args)
     node = BehaviorTreeNode()
   
-    node.execute_task("Bring blue book from kitchen")
-
+    #node.execute_task("Where is the ball")
     
     rclpy.spin(node)
     node.destroy_node()
