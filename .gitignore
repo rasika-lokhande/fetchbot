@@ -1,6 +1,7 @@
 ros_env.sh
 .env
-pyinstall.sh
+docs/
+
 
 
 # ROS build artifacts
