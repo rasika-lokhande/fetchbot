@@ -13,8 +13,8 @@ class FetchCmdParserNode(Node):
         super().__init__("fetch_cmd_parser") 
 
 
-        self.openai_client = OpenAI()
-        self.model_name = 'gpt-4o-mini-2024-07-18'
+        self.openai_client = OpenAI(base_url="https://openrouter.ai/api/v1")
+        self.model_name = 'openrouter/elephant-alpha'
         self.create_service(ParseFetchCmd, "parse_fetch_cmd", 
                             callback=self.parse_fetch_cmd_callback)
         
@@ -65,7 +65,7 @@ class FetchCmdParserNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = FetchCmdParserNode() 
-    print(node.call_llm_api("Im thirsty."))
+    #print(node.call_llm_api("i want to study"))
     rclpy.spin(node)
     rclpy.shutdown()
  

@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
+
+# A sample client node for fetch_cmd_parser service
+
+
 import rclpy
 from rclpy.node import Node
+from std_msgs.msg import String
 from fetchbot_interfaces.srv import ParseFetchCmd
 from functools import partial
  
@@ -33,7 +38,7 @@ class FetchCmdParserClient(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = FetchCmdParserClient()
-    node.send_cmd_parse_request("take yellow bottle to the kitchen")
+    node.send_cmd_parse_request("get me something to drink")
     rclpy.spin(node)
     rclpy.shutdown()
  
