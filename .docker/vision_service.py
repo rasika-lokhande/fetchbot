@@ -13,23 +13,18 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 model, preprocess = clip.load("ViT-B/32", device=device)
 print(f"CLIP model loaded on {device}")
 
-# Objects to detect
-OBJECTS = [
-    "red cup",
-    "blue book", 
-    "yellow ball",
-    "green bottle"
+# Negative contrast prompts — what the robot sees when the object is NOT there
+NEGATIVE_PROMPTS = [
+    "a photo of an empty room",
+    "a photo of furniture and walls",
 ]
-
-# Confidence threshold for detection
-CONFIDENCE_THRESHOLD = 0.3
 
 
 def extract_image_from_request(request):
     """
     Extract image from POST request.
     Supports both file upload and base64 JSON formats.
-    
+
     Returns:
         PIL.Image: RGB image
     Raises:
@@ -39,23 +34,29 @@ def extract_image_from_request(request):
         # File upload format
         image_file = request.files['image']
         return Image.open(image_file.stream).convert('RGB')
-    
+
     elif request.json and 'image' in request.json:
         # Base64 JSON format
         image_data = base64.b64decode(request.json['image'])
         return Image.open(io.BytesIO(image_data)).convert('RGB')
-    
+
     else:
         raise ValueError('No image provided')
+
+
+def extract_text_input_from_request(request):
+    if not request.json or 'text_input' not in request.json:
+        raise ValueError('No text_input provided in request body')
+    return request.json['text_input']
 
 
 def preprocess_image(image):
     """
     Prepare image for CLIP model.
-    
+
     Args:
         image: PIL Image
-    
+
     Returns:
         torch.Tensor: Preprocessed image tensor on correct device
     """
@@ -63,133 +64,127 @@ def preprocess_image(image):
     return image_input
 
 
-def create_text_inputs(objects):
+def build_prompts(text_input):
     """
-    Create text prompts for CLIP from object names.
-    
+    Build positive and negative prompts for open-ended detection.
+    Uses contrast prompts so softmax is meaningful.
+
     Args:
-        objects: List of object names (e.g., ["red cup", "blue book"])
-    
+        text_input: str — object or natural language query from LLM
+
+    Returns:
+        list[str]: [positive_prompt, *negative_prompts]
+    """
+    positive_prompt = f"a photo of a {text_input}"
+    return [positive_prompt] + NEGATIVE_PROMPTS
+
+
+def create_text_tokens(prompts):
+    """
+    Tokenize a list of prompts for CLIP.
+
+    Args:
+        prompts: list of str
+
     Returns:
         torch.Tensor: Tokenized text inputs on correct device
     """
-    text_prompts = [f"a photo of a {obj}" for obj in objects]
-    text_inputs = torch.cat([clip.tokenize(prompt) for prompt in text_prompts]).to(device)
-    return text_inputs
+    tokens = clip.tokenize(prompts).to(device)
+    return tokens
 
 
-def compute_clip_similarity(image_input, text_inputs):
+def compute_clip_similarity(image_input, text_tokens):
     """
-    Compute similarity scores between image and text using CLIP.
-    
+    Compute similarity scores between image and text prompts using CLIP.
+    Softmax is applied across all prompts so scores are relative and meaningful.
+
     Args:
         image_input: Preprocessed image tensor
-        text_inputs: Tokenized text tensor
-    
+        text_tokens: Tokenized text tensor of shape (N, token_dim)
+
     Returns:
-        torch.Tensor: Similarity scores (probabilities) for each text prompt
+        torch.Tensor: Softmax similarity scores of shape (1, N)
     """
     with torch.no_grad():
-        # Encode image and text
         image_features = model.encode_image(image_input)
-        text_features = model.encode_text(text_inputs)
-        
+        text_features = model.encode_text(text_tokens)
+
         # Normalize features
         image_features /= image_features.norm(dim=-1, keepdim=True)
         text_features /= text_features.norm(dim=-1, keepdim=True)
-        
-        # Calculate similarity scores
+
+        # Softmax across all prompts — score is now meaningful relative to negatives
         similarity = (100.0 * image_features @ text_features.T).softmax(dim=-1)
-    
+
     return similarity
 
 
-def format_detections(similarity_scores, objects):
+def format_detections(text_input_str, similarity):
     """
-    Format similarity scores into detection results.
-    
-    Args:
-        similarity_scores: Tensor of similarity scores
-        objects: List of object names
-    
-    Returns:
-        list: Sorted list of detection dictionaries
-    """
-    detections = []
-    for i, obj in enumerate(objects):
-        confidence = float(similarity_scores[0, i].item())
-        detections.append({
-            'object': obj,
-            'confidence': confidence
-        })
-    
-    # Sort by confidence (highest first)
-    detections.sort(key=lambda x: x['confidence'], reverse=True)
-    return detections
+    Extract the positive prompt confidence score from similarity scores.
 
-
-def get_best_match(detections, threshold=CONFIDENCE_THRESHOLD):
-    """
-    Determine best matching object above confidence threshold.
-    
     Args:
-        detections: Sorted list of detection dictionaries
-        threshold: Minimum confidence required
-    
+        text_input_str: Original text input string
+        similarity: Softmax similarity tensor of shape (1, N)
+                    Index 0 = positive prompt, rest = negative prompts
+
     Returns:
-        str or None: Best matching object name, or None if below threshold
+        dict: text_input, confidence (positive prompt score), detected (bool)
     """
-    if detections and detections[0]['confidence'] > threshold:
-        return detections[0]['object']
-    return None
+    # Index 0 is always the positive prompt score
+    confidence = float(similarity[0, 0].item())
+
+    return {
+        'text_input': text_input_str,
+        'confidence': confidence
+    }
 
 
 @app.route('/detect', methods=['POST'])
 def detect():
     """
-    Detects objects in an image using CLIP.
-    
+    Detects objects in an image using CLIP with open-ended text prompts.
+
     Accepts:
     - image file (multipart/form-data)
     OR
     - base64 encoded image (JSON)
-    
+
+    AND
+    - text_input: object name or natural language query (e.g. "green bottle", "I'm thirsty")
+
     Returns:
-    - List of detected objects with confidence scores
-    - Best match object
+    - confidence: float — how likely the object is in the image (0-1)
     """
     try:
-        # Step 1: Extract image from request
+        # Step 1: Extract image and text input from request
         image = extract_image_from_request(request)
-        
+        text_input_str = extract_text_input_from_request(request)
+
         # Step 2: Preprocess image for CLIP
         image_input = preprocess_image(image)
-        
-        # Step 3: Create text inputs
-        text_inputs = create_text_inputs(OBJECTS)
-        
-        # Step 4: Compute similarity scores
-        similarity = compute_clip_similarity(image_input, text_inputs)
-        
-        # Step 5: Format results
-        detections = format_detections(similarity, OBJECTS)
-        
-        # Step 6: Determine best match
-        best_match = get_best_match(detections)
-        
+
+        # Step 3: Build positive + negative prompts and tokenize
+        prompts = build_prompts(text_input_str)
+        text_tokens = create_text_tokens(prompts)
+
+        # Step 4: Compute similarity scores across all prompts
+        similarity = compute_clip_similarity(image_input, text_tokens)
+
+        # Step 5: Extract positive prompt score and format result
+        detection_result = format_detections(text_input_str, similarity)
+
         return jsonify({
             'success': True,
-            'detections': detections,
-            'best_match': best_match,
-            'threshold': CONFIDENCE_THRESHOLD
+            'result': detection_result
         })
-    
+
     except ValueError as e:
         return jsonify({
             'success': False,
             'error': str(e)
         }), 400
-    
+
     except Exception as e:
         return jsonify({
             'success': False,
@@ -203,8 +198,7 @@ def health():
     return jsonify({
         'status': 'healthy',
         'model': 'CLIP ViT-B/32',
-        'device': device,
-        'objects': OBJECTS
+        'device': device
     })
 
 
@@ -216,8 +210,7 @@ def index():
         'endpoints': {
             '/health': 'GET - Health check',
             '/detect': 'POST - Detect objects in image'
-        },
-        'objects': OBJECTS
+        }
     })
 
 
