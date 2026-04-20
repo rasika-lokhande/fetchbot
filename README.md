@@ -1,7 +1,7 @@
 
 # FetchBot: Autonomous Semantic Search & Retrieval
 
-FetchBot is a ROS2-based robotics framework that enables a robot to locate objects in a household environment using natural language commands. Unlike traditional search robots that rely on random exploration, FetchBot uses **Behavior Trees**, **Large Language Models (GPT-4o-mini)**, and **Vision-Language Models (CLIP)** to perform "semantic search"—finding objects based on where they are statistically most likely to be located.
+FetchBot is a ROS2-based robotics project that enables a robot to locate objects in a household environment using natural language commands. Unlike traditional search robots that rely on random exploration, FetchBot uses **Behavior Trees**, **Large Language Models (GPT-4o-mini)**, and **Vision-Language Models (CLIP)** to perform "semantic search"—finding objects based on where they are statistically most likely to be located.
 
 ## 🌟 Overview
 
