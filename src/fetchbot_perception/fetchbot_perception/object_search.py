@@ -12,7 +12,7 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 
 
 from geometry_msgs.msg import TwistStamped
-from fetchbot_interfaces.msg import Detection
+from fetchbot_interfaces.msg import ClipDetection
 from fetchbot_interfaces.action import SearchObject
 
 
@@ -29,7 +29,7 @@ class ObjectSearchNode(Node):
         super().__init__('object_search')
 
         self.declare_parameter('rotation_speed', 0.5)          # rad/s
-        self.declare_parameter('confidence_threshold', 0.3)
+        self.declare_parameter('confidence_threshold', 0.99)
         self.declare_parameter('max_search_time', 30.0)        # seconds
         self.declare_parameter('search_freq', 10.0)            # Hz
 
@@ -40,8 +40,8 @@ class ObjectSearchNode(Node):
         self.latest_detection = None
 
         self.detection_sub = self.create_subscription(
-            msg_type=Detection,
-            topic='/detected_objects',
+            msg_type=ClipDetection,
+            topic='/detection_result',
             callback = self.detection_callback,
             qos_profile = 10
         )
@@ -64,12 +64,14 @@ class ObjectSearchNode(Node):
     def goal_callback(self, goal_request:SearchObject.Goal):
         self.get_logger().info("Received a goal")
         #Implement some policy regarding whether to accept or reject the goal
-        if goal_request.target_object in ['blue book', 'red cup', 'green bottle', 'yellow ball']:
-            self.get_logger().info("Target Object is in the list! Goal accepted")
-            return GoalResponse.ACCEPT
-        else:
-            self.get_logger().info("Target Object is NOT in the list! Goal rejected")
+
+
+        if goal_request.target_object in ['unknown']:
+            self.get_logger().info("Goal rejected")
             return GoalResponse.REJECT
+        else:
+            self.get_logger().info("Goal accepted")
+            return GoalResponse.ACCEPT
 
 
     def execute_callback(self, goal_handle:ServerGoalHandle):
@@ -90,13 +92,12 @@ class ObjectSearchNode(Node):
         while rclpy.ok():
             elapsed_time = (self.get_clock().now() - start_time).nanoseconds / 1e9
             if self.latest_detection and \
-               self.latest_detection.best_match == target_object and \
-               self.latest_detection.best_confidence >= self.confidence_threshold:
+               self.latest_detection.confidence >= self.confidence_threshold:
                 
                 
                 result.success = True
-                result.confidence = self.latest_detection.best_confidence
-                result.message = f"Target object '{target_object}' detected with confidence {result.confidence:.2f}"
+                result.confidence = self.latest_detection.confidence
+                result.message = f"Target object '{target_object}' detected with confidence {result.confidence:.3f}"
                 self.stop_rotation()
                 self.get_logger().info(f"Object found: {result.message}")
                 goal_handle.succeed()
@@ -144,13 +145,13 @@ class ObjectSearchNode(Node):
 
     def cancel_callback(self, goal_handle:ServerGoalHandle):
         self.get_logger().warn("Received a CANCEL REQUEST")
-        return CancelResponse.ACCEPT # or reject
+        return CancelResponse.ACCEPT 
 
 
     
     def detection_callback(self, msg):
         self.latest_detection = msg
-       # self.get_logger().info(f"Detection received! Best match: {msg.best_match}, Confidence: {msg.best_confidence}")
+       # self.get_logger().info(f"Detection received! Confidence: {msg.best_confidence}")
 
 
     def stop_rotation(self):

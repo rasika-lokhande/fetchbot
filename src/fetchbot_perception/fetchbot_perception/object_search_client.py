@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+
+# A sample client node for search_object action server
+
 import rclpy
 from rclpy.node import Node
 from fetchbot_interfaces.action import SearchObject
@@ -10,7 +13,7 @@ class ObjectSearchClientNode(Node):
     def __init__(self):
         super().__init__("object_search_client") 
 
-        self.declare_parameter('target_object', 'blue book')
+        self.declare_parameter('target_object', 'bottle')
         self.object_search_client = ActionClient(self, SearchObject, "search_object")
         self.target_object = self.get_parameter('target_object').value
         

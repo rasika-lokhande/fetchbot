@@ -2,7 +2,8 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
-from fetchbot_interfaces.msg import Detection
+from fetchbot_interfaces.msg import ClipDetection
+from fetchbot_interfaces.msg import SearchCmd
 from cv_bridge import CvBridge
 import cv2
 import base64
@@ -20,15 +21,27 @@ class VisionBridgeNode(Node):
                                                        callback=self.process_image,
                                                        qos_profile=10)
         
-        self.target_detection_publisher = self.create_publisher(msg_type=Detection,
-                                                                 topic="/detected_objects",
+        self.clip_input_subscriber = self.create_subscription(msg_type=SearchCmd,
+                                                         topic="/search_cmd",
+                                                       callback=self.search_cmd_callback,
+                                                       qos_profile=10)
+        
+        self.target_detection_publisher = self.create_publisher(msg_type=ClipDetection,
+                                                                 topic="/detection_result",
                                                                  qos_profile=10)
         
         # Docker service URL
         self.vision_url = 'http://localhost:5000/detect'
         
         self.get_logger().info('Vision Bridge started!')
+
+        self.search_cmd = ''
         
+
+    def search_cmd_callback(self, search_cmd_msg):
+        """Called everytime a search command message arrives"""
+        self.search_cmd = search_cmd_msg.search_cmd
+        #self.get_logger().info("Search command recieved - {self.search_cmd}")
     
     
     def process_image(self,img_msg):
@@ -47,33 +60,34 @@ class VisionBridgeNode(Node):
         # Step 4: Call Docker vision service
         response = requests.post(
             self.vision_url,
-            json={'image': base64_image},
+            json={'image': base64_image, 
+                  'text_input':self.search_cmd},
             timeout=5.0
         )
         
         # Step 5: Parse response
         result = response.json()
+        #print(result)
+       
         
         # Step 6: Create and publish Detection message
-        detection_msg = Detection()
+        detection_msg = ClipDetection()
 
         # Extract detections
-        detections = result['detections']
-        detection_msg.object_names = [d['object'] for d in detections]
-        detection_msg.confidences = [d['confidence'] for d in detections]
-        detection_msg.best_match = result['best_match'] if result['best_match'] else ''
-        detection_msg.best_confidence = detections[0]['confidence'] if detections else 0.0
+        detection_result = result['result']
+        #self.get_logger().info(detection_result)
 
-        
+        detection_msg.text_input = detection_result['text_input']
+        detection_msg.confidence = detection_result['confidence']
+
         self.target_detection_publisher.publish(detection_msg)
-        self.get_logger().info(f'Detected: {detection_msg.best_match} ({detection_msg.best_confidence:.2f})')
 
         
  
  
 def main(args=None):
     rclpy.init(args=args)
-    node = VisionBridgeNode() # MODIFY NAME
+    node = VisionBridgeNode() 
     rclpy.spin(node)
     rclpy.shutdown()
  

@@ -1,0 +1,1 @@
+string search_cmd     # Prompt for the CLIP model
