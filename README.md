@@ -1,3 +1,7 @@
+> [!NOTE]
+> This project has been superseded by [APTLS-ROS2](https://github.com/rasika-lokhande/aptls-ros2).
+> This repo is kept for reference only.
+
 
 # FetchBot: Autonomous Semantic Search & Retrieval
 
